@@ -31,41 +31,46 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlin
 
 mongoose.connect(MONGODB_URI);
 
-// Routes
 
-// A GET route for scraping the echoJS website
-app.get("/scrape", function(req, res) {
-  // First, we grab the body of the html with axios
-  axios.get("http://www.echojs.com/").then(function(response) {
-    // Then, we load that into cheerio and save it to $ for a shorthand selector
-    var $ = cheerio.load(response.data);
-
-    // Now, we grab every h2 within an article tag, and do the following:
-    $("article h2").each(function(i, element) {
-      // Save an empty result object
+// GET HEADLINES ROUTE
+app.get('/scrape', (req, res) => {
+  axios.get('https://medium.com/topic/technology').then((response) => {
+    // empty database to remove chance of duplicates
+    db.Article.remove({}, (err => {
+      if (err) throw err;
+      else (console.log("Documents cleared out"))
+    }));
+    let $ = cheerio.load(response.data);
+    // this is the smallest div that contains all the data we want to scrape
+    $('section.fc').each(function(i, element) {
       var result = {};
-
-      // Add the text and href of every link, and save them as properties of the result object
-      result.title = $(this)
-        .children("a")
+      // the headline is the text value of an <a> tag inside of an <h3> inside of div.dp
+      result.headline = $(this)
+        .find('div.dp')
+        // .find('h3')
+        .find('a')
         .text();
-      result.link = $(this)
-        .children("a")
-        .attr("href");
-
-      // Create a new Article using the `result` object built from scraping
+      // the summary is the text value of an <a> tag inside of the div.dv inside of div.dp
+      result.summary = $(this)
+        .find('div.dp')
+        .find('div.dv')
+        .find('a')
+        .text();
+      // the url is the href of an <a> tag inside of the <h3> inside of div.dp
+      result.url = $(this)
+        .find('div.dp')
+        .find('h3.ai')
+        .find('a')
+        .attr('href');
+      // add each to the Article database
       db.Article.create(result)
-        .then(function(dbArticle) {
-          // View the added result in the console
-          console.log(dbArticle);
+        .then(dbArticle => {
+        console.log(dbArticle);
         })
-        .catch(function(err) {
-          // If an error occurred, log it
-          console.log(err);
-        });
+        .catch(err => {
+        console.log(err)
+      });
     });
-
-    // Send a message to the client
     res.send("Scrape Complete");
   });
 });
@@ -120,7 +125,10 @@ app.post("/articles/:id", function(req, res) {
     });
 });
 
+
+
+
 // Start the server
-app.listen(PORT, function() {
+app.listen(PORT, function () {
   console.log("App running on port " + PORT + "!");
 });
