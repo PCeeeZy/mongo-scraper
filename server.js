@@ -71,7 +71,30 @@ app.get('/scrape', (req, res) => {
         console.log(err)
       });
     });
-    res.send("Scrape Complete");
+    res.send(`<link href="https://fonts.googleapis.com/css?family=Permanent+Marker" rel="stylesheet">
+    <style>
+      body { 
+        background-color: rgb(70, 11, 117);
+        font-family: 'Permanent Marker', cursive; 
+        color: white;
+      }
+      a:link {
+        color: #b71ebc;
+        text-decoration: none;
+      }
+      a:visited {
+        color: #bc1e30;
+      }
+      a:hover {
+        color: #8a158e;
+      }
+      a:active {
+        color: #bc1e30;
+      }
+    </style>
+    <body>
+    <h2>Scrape Complete</h2>
+    <a href="/" id="goHome"><h3>Let's see our results</h3></a></body>`);
   });
 });
 
