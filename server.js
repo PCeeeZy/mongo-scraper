@@ -42,23 +42,23 @@ app.get('/scrape', (req, res) => {
     }));
     let $ = cheerio.load(response.data);
     // this is the smallest div that contains all the data we want to scrape
-    $('section.fc').each(function(i, element) {
+    $('section.ex').each(function(i, element) {
       var result = {};
       // the headline is the text value of an <a> tag inside of an <h3> inside of div.dp
       result.headline = $(this)
-        .find('div.dp')
+        .find('div.dr')
         // .find('h3')
         .find('a')
         .text();
       // the summary is the text value of an <a> tag inside of the div.dv inside of div.dp
       result.summary = $(this)
-        .find('div.dp')
-        .find('div.dv')
+        .find('div.dw')
+        .find('p')
         .find('a')
         .text();
       // the url is the href of an <a> tag inside of the <h3> inside of div.dp
       result.url = $(this)
-        .find('div.dp')
+        .find('div.dr')
         .find('h3.ai')
         .find('a')
         .attr('href');
